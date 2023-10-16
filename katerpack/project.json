@@ -1,0 +1,35 @@
+{
+  "name": "katerpack",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "katerpack/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/katerpack"
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs katerpack {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../coverage/katerpack"
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["katerpack/**/*.ts", "katerpack/package.json"]
+      }
+    }
+  },
+  "tags": []
+}
