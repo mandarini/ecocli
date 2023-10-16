@@ -15,14 +15,12 @@ export default defineConfig({
       skipDiagnostics: true,
     }),
   ],
+  resolve: {
+    alias: {
+      fs: require.resolve('rollup-plugin-node-builtins'),
+    },
+  },
 
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
-
-  // Configuration for building your library.
-  // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points.
