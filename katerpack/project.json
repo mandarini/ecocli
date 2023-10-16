@@ -11,9 +11,17 @@
         "outputPath": "dist/katerpack"
       }
     },
+    "post-build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "echo '#!/usr/bin/env node' > dist/katerpack/index.js.tmp && cat dist/katerpack/index.js >> dist/katerpack/index.js.tmp && mv dist/katerpack/index.js.tmp dist/katerpack/index.js && chmod +x dist/katerpack/index.js"
+      },
+      "dependsOn": ["build"]
+    },
     "publish": {
       "command": "node tools/scripts/publish.mjs katerpack {args.ver} {args.tag}",
-      "dependsOn": ["build"]
+      "dependsOn": ["post-build"]
     },
     "test": {
       "executor": "@nx/vite:test",
