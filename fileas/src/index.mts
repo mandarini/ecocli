@@ -15,7 +15,7 @@ import { runInRepo as nxRunInRepo } from './lib/utils-nx.mjs';
 
 const cli = cac();
 cli
-  .command('[...suites]', 'build vite and run selected suites')
+  .command('[...suites]', 'build and run selected suites')
   .option('--verify', 'verify checkouts by running tests', { default: false })
   .option('--ecosystem <ecosystem>', 'which ecosystem to run tests for', {
     default: undefined,
@@ -32,8 +32,7 @@ cli
   .option('--test <test>', 'test script', { default: 'test', type: [String] })
   .option('--e2e <e2e>', 'e2e script', { default: 'e2e', type: [String] })
   .option('--optionsFile <optionsFile>', 'file with options', {
-    default: 'test-ecosystem.json',
-    type: [String],
+    default: undefined,
   })
   .action(async (_suites, options: CommandOptions) => {
     const { root, vitePath, workspace } = await setupEnvironment();
@@ -41,7 +40,7 @@ cli
       throw new Error('Could not find vite path.');
     }
     let suiteOptions;
-    if (options.optionsFile) {
+    if (options.optionsFile !== undefined) {
       const getSuitePath = path.join(process.cwd(), options.optionsFile);
       if (fs.existsSync(getSuitePath)) {
         suiteOptions = JSON.parse(

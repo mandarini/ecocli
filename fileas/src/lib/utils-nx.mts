@@ -117,8 +117,6 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
   await $`${pm} nx migrate --run-migrations --if-exists --no-interactive`;
 
-  console.log('PACKAGE SCRIPTS', pkg.scripts);
-
   await beforeBuildCommand?.(pkg.scripts);
   await buildCommand?.(pkg.scripts);
   if (test) {
