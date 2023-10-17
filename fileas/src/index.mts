@@ -13,9 +13,9 @@ cli
     'verify checkouts by running tests before using next nx',
     { default: false }
   )
-  .option('--build', 'build script', { default: false })
-  .option('--test', 'test script', { default: false })
-  .option('--e2e', 'e2e script', { default: false })
+  .option('--build <build>', 'build script', { default: 'build', type: [String] })
+  .option('--test <test>', 'test script', { default: 'test', type: [String] })
+  .option('--e2e <e2e>', 'e2e script', { default: 'e2e', type: [String] })
   .action(async (suites, options: CommandOptions) => {
     const { root, workspace } = await setupEnvironment();
     const currentWd = process.cwd();
@@ -65,11 +65,13 @@ cli.help();
 cli.parse();
 
 async function run(suiteOptions: RepoOptions, options: RunOptions) {
-  await runInRepo({
+  const finalOptions = {
     ...suiteOptions,
     ...options,
-    workspace: path.resolve(options.workspace, 'nx'),
-  });
+    workspace: path.resolve(options.workspace),
+  };
+  console.log('Katerina options', finalOptions);
+  await runInRepo(finalOptions);
 }
 
 // function getSuitesToRun(suites: string[], root: string) {

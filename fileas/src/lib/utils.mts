@@ -266,7 +266,7 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
   await e2eCommand?.(pkg.scripts);
 
   await $`git add -A`;
-  await $`git commit -m "ecosystem tests ran successfully"`;
+  await $`git commit -m ecosystem-run-success`;
   await $`git checkout -`;
   return { dir };
 }
