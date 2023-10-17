@@ -16,8 +16,8 @@ export async function setupRepo() {
   // Always clone latest main branch from vite repo
   const branch = 'main';
   const shallow = true;
-  const repo = 'vitejs/vite';
-  const dir = 'tmp-vite-repo';
+  const repo = `https://github.com/vitejs/vite.git`;
+  const dir = getVitePath();
   let needClone = true;
   if (fs.existsSync(dir)) {
     const _cwd = getCwd();
@@ -446,8 +446,7 @@ async function buildOverrides(
   options: RunOptions,
   repoOverrides: Overrides
 ) {
-  const { root } = options;
-  const buildsPath = path.join(root, 'builds');
+  const buildsPath = path.join(getVitePath(), 'builds');
   const buildFiles: string[] = fs
     .readdirSync(buildsPath)
     .filter((f: string) => !f.startsWith('_') && f.endsWith('.ts'))
