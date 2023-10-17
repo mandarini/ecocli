@@ -9,7 +9,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/fileas",
-        "main": "fileas/src/index.ts",
+        "main": "fileas/src/index.mts",
         "tsConfig": "fileas/tsconfig.lib.json",
         "assets": ["fileas/*.md"]
       }
@@ -18,7 +18,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "echo '#!/usr/bin/env node' > dist/fileas/src/index.js.tmp && cat dist/fileas/src/index.js >> dist/fileas/src/index.js.tmp && mv dist/fileas/src/index.js.tmp dist/fileas/src/index.js && chmod +x dist/fileas/src/index.js"
+        "command": "echo '#!/usr/bin/env node' > dist/fileas/src/index.mjs.tmp && cat dist/fileas/src/index.mjs >> dist/fileas/src/index.mjs.tmp && mv dist/fileas/src/index.mjs.tmp dist/fileas/src/index.mjs && chmod +x dist/fileas/src/index.mjs"
       },
       "dependsOn": ["build"]
     },
@@ -30,7 +30,11 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["fileas/**/*.ts", "fileas/package.json"]
+        "lintFilePatterns": [
+          "fileas/**/*.ts",
+          "fileas/**/*.mts",
+          "fileas/package.json"
+        ]
       }
     }
   },
