@@ -15,8 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@psybercity/fileas": ["fileas/src/index.ts"],
-      "@psybercity/kater": ["katerpack/src/index.ts"]
+      "@psybercity/fileas": ["fileas/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
