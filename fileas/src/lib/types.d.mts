@@ -31,6 +31,7 @@ export interface CommandOptions {
   build?: Task | Task[];
   test?: Task | Task[];
   e2e?: Task | Task[];
+  optionsFile?: string;
   commit?: string;
   release?: string;
   verify?: boolean;

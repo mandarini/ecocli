@@ -82,65 +82,6 @@ function initWorkspace(workspace: string) {
   }
 }
 
-// export async function setupRepo(options: RepoOptions) {
-//   if (options.branch == null) {
-//     options.branch = 'main';
-//   }
-//   if (options.shallow == null) {
-//     options.shallow = true;
-//   }
-
-//   const { commit, branch, tag, dir, shallow } = options;
-//   let { repo } = options;
-//   if (!dir) {
-//     throw new Error('setupRepo must be called with options.dir');
-//   }
-//   if (!repo.includes(':')) {
-//     repo = `https://github.com/${repo}.git`;
-//   }
-
-//   let needClone = true;
-//   if (fs.existsSync(dir)) {
-//     const _cwd = cwd;
-//     cd(dir);
-//     let currentClonedRepo: string | undefined;
-//     try {
-//       currentClonedRepo = await $`git ls-remote --get-url`;
-//     } catch {
-//       // when not a git repo
-//     }
-//     cd(_cwd);
-
-//     if (repo === currentClonedRepo) {
-//       needClone = false;
-//     } else {
-//       fs.rmSync(dir, { recursive: true, force: true });
-//     }
-//   }
-
-//   if (needClone) {
-//     await $`git -c advice.detachedHead=false clone ${
-//       shallow ? '--depth=1 --no-tags' : ''
-//     } --branch ${tag || branch} ${repo} ${dir}`;
-//   }
-//   cd(dir);
-//   await $`git clean -fdxq`;
-//   await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
-//     tag ? `tag ${tag}` : `${commit || branch}`
-//   }`;
-//   if (shallow) {
-//     await $`git -c advice.detachedHead=false checkout ${
-//       tag ? `tags/${tag}` : `${commit || branch}`
-//     }`;
-//   } else {
-//     await $`git checkout ${branch}`;
-//     await $`git merge FETCH_HEAD`;
-//     if (tag || commit) {
-//       await $`git reset --hard ${tag || commit}`;
-//     }
-//   }
-// }
-
 function toCommand(
   task: Task | Task[] | void,
   agent: Agent

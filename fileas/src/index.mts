@@ -13,20 +13,26 @@ cli
     'verify checkouts by running tests before using next nx',
     { default: false }
   )
-  .option('--build <build>', 'build script', { default: 'build', type: [String] })
+  .option('--build <build>', 'build script', {
+    default: 'build',
+    type: [String],
+  })
   .option('--test <test>', 'test script', { default: 'test', type: [String] })
   .option('--e2e <e2e>', 'e2e script', { default: 'e2e', type: [String] })
+  .option('--optionsFile <optionsFile>', 'file with options', {
+    default: 'test-ecosystem.json',
+    type: [String],
+  })
   .action(async (suites, options: CommandOptions) => {
     const { root, workspace } = await setupEnvironment();
-    const currentWd = process.cwd();
-    console.log('currentWd', currentWd);
-    const getSuitePath = path.join(process.cwd(), 'test-nx.json');
     let suiteOptions;
-    if (fs.existsSync(getSuitePath)) {
-      suiteOptions = JSON.parse(
-        fs.readFileSync(getSuitePath, 'utf-8')
-      ) as RepoOptions;
-      console.log('suiteOptions', suiteOptions);
+    if (options.optionsFile) {
+      const getSuitePath = path.join(process.cwd(), options.optionsFile);
+      if (fs.existsSync(getSuitePath)) {
+        suiteOptions = JSON.parse(
+          fs.readFileSync(getSuitePath, 'utf-8')
+        ) as RepoOptions;
+      }
     }
 
     const runOptions: RunOptions = {
@@ -39,27 +45,8 @@ cli
       test: options.test,
       e2e: options.e2e,
     };
-    console.log('runOptions', runOptions);
     await run(suiteOptions ?? {}, runOptions);
   });
-
-// cli
-//   .command('run-suites [...suites]', 'run single suite')
-//   .option('--verify', 'verify checkout by running tests before using next nx', {
-//     default: false,
-//   })
-//   .action(async (suites, options: CommandOptions) => {
-//     const { root, workspace } = await setupEnvironment();
-//     const suitesToRun = getSuitesToRun(suites, root);
-//     const runOptions: RunOptions = {
-//       ...options,
-//       root,
-//       workspace,
-//     };
-//     for (const suite of suitesToRun) {
-//       await run(suite, runOptions);
-//     }
-//   });
 
 cli.help();
 cli.parse();
@@ -70,28 +57,6 @@ async function run(suiteOptions: RepoOptions, options: RunOptions) {
     ...options,
     workspace: path.resolve(options.workspace),
   };
-  console.log('Katerina options', finalOptions);
+  console.log('Run options: ', finalOptions);
   await runInRepo(finalOptions);
 }
-
-// function getSuitesToRun(suites: string[], root: string) {
-//   let suitesToRun: string[] = suites;
-//   const availableSuites: string[] = fs
-//     .readdirSync(path.join(root, 'tests'))
-//     .filter((f: string) => !f.startsWith('_') && f.endsWith('.ts'))
-//     .map((f: string) => f.slice(0, -3));
-//   availableSuites.sort();
-//   if (suitesToRun.length === 0) {
-//     suitesToRun = availableSuites;
-//   } else {
-//     const invalidSuites = suitesToRun.filter(
-//       (x) => !x.startsWith('_') && !availableSuites.includes(x)
-//     );
-//     if (invalidSuites.length) {
-//       console.log(`invalid suite(s): ${invalidSuites.join(', ')}`);
-//       console.log(`available suites: ${availableSuites.join(', ')}`);
-//       process.exit(1);
-//     }
-//   }
-//   return suitesToRun;
-// }
