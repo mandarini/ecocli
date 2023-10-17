@@ -1,3 +1,4 @@
+// Based on / copied from Vite Ecosystem CI: https://github.com/vitejs/vite-ecosystem-ci
 import type { Agent } from '@antfu/ni';
 export interface EnvironmentData {
   root: string;

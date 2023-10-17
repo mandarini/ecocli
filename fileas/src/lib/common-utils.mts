@@ -1,3 +1,5 @@
+// Based on / copied from Vite Ecosystem CI: https://github.com/vitejs/vite-ecosystem-ci
+
 import actionsCore from '@actions/core';
 import { execaCommand } from 'execa';
 import path from 'path';

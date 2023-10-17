@@ -1,3 +1,4 @@
+// Based on / copied from Vite Ecosystem CI: https://github.com/vitejs/vite-ecosystem-ci
 import path from 'path';
 import * as fs from 'fs'; // ES Modules
 import { Overrides, RepoOptions, RunOptions, Task } from './types.mjs';

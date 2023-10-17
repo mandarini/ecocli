@@ -1,3 +1,4 @@
+// Based on / copied from Vite Ecosystem CI: https://github.com/vitejs/vite-ecosystem-ci
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
