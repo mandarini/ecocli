@@ -1,0 +1,38 @@
+{
+  "name": "fileas",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "fileas/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/fileas",
+        "main": "fileas/src/index.ts",
+        "tsConfig": "fileas/tsconfig.lib.json",
+        "assets": ["fileas/*.md"]
+      }
+    },
+    "post-build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "echo '#!/usr/bin/env node' > dist/fileas/src/index.js.tmp && cat dist/fileas/src/index.js >> dist/fileas/src/index.js.tmp && mv dist/fileas/src/index.js.tmp dist/fileas/src/index.js && chmod +x dist/fileas/src/index.js"
+      },
+      "dependsOn": ["build"]
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs fileas {args.ver} {args.tag}",
+      "dependsOn": ["post-build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["fileas/**/*.ts", "fileas/package.json"]
+      }
+    }
+  },
+  "tags": []
+}
