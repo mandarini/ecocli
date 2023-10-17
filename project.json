@@ -1,5 +1,5 @@
 {
-  "name": "@katerpack/source",
+  "name": "ecosystem-ci-prototype-source",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "targets": {
     "local-registry": {

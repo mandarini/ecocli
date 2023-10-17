@@ -1,5 +1,5 @@
 {
-  "name": "@psybercity/fileas",
+  "name": "ecosystem-ci-prototype",
   "type": "module",
   "version": "0.0.1",
   "dependencies": {
@@ -17,6 +17,6 @@
   "module": "./src/index.mjs",
   "typings": "./src/index.d.mts",
   "bin": {
-    "@psybercity/fileas": "./src/index.mjs"
+    "ecosystem-ci-prototype": "./src/index.mjs"
   }
 }

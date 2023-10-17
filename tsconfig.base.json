@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@psybercity/fileas": ["fileas/src/index.ts"]
+      "ecosystem-ci-prototype": ["fileas/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

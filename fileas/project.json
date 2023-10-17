@@ -1,5 +1,5 @@
 {
-  "name": "fileas",
+  "name": "ecosystem-ci-prototype",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "fileas/src",
   "projectType": "library",
@@ -8,7 +8,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/fileas",
+        "outputPath": "dist/ecosystem-ci-prototype",
         "main": "fileas/src/index.mts",
         "tsConfig": "fileas/tsconfig.lib.json",
         "assets": ["fileas/*.md"]
@@ -18,12 +18,12 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "echo '#!/usr/bin/env node' > dist/fileas/src/index.mjs.tmp && cat dist/fileas/src/index.mjs >> dist/fileas/src/index.mjs.tmp && mv dist/fileas/src/index.mjs.tmp dist/fileas/src/index.mjs && chmod +x dist/fileas/src/index.mjs"
+        "command": "echo '#!/usr/bin/env node' > dist/ecosystem-ci-prototype/src/index.mjs.tmp && cat dist/ecosystem-ci-prototype/src/index.mjs >> dist/ecosystem-ci-prototype/src/index.mjs.tmp && mv dist/ecosystem-ci-prototype/src/index.mjs.tmp dist/ecosystem-ci-prototype/src/index.mjs && chmod +x dist/ecosystem-ci-prototype/src/index.mjs"
       },
       "dependsOn": ["build"]
     },
     "publish": {
-      "command": "node tools/scripts/publish.mjs fileas {args.ver} {args.tag}",
+      "command": "node tools/scripts/publish.mjs ecosystem-ci-prototype {args.ver} {args.tag}",
       "dependsOn": ["post-build"]
     },
     "lint": {
