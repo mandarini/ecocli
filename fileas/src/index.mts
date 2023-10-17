@@ -3,7 +3,7 @@ import path from 'path';
 import process from 'process';
 import { cac } from 'cac';
 import { CommandOptions, RepoOptions, RunOptions } from './lib/types.mjs';
-import { runInRepo, setupEnvironment } from './lib/utils.mjs';
+import { runInRepo, setupEnvironment, $ } from './lib/utils.mjs';
 
 const cli = cac();
 cli
@@ -45,7 +45,14 @@ cli
       test: options.test,
       e2e: options.e2e,
     };
-    await run(suiteOptions ?? {}, runOptions);
+    try {
+      await run(suiteOptions ?? {}, runOptions);
+    } catch (e) {
+      await $`git add -A`;
+      await $`git commit -m ecosystem-run-failed`;
+      await $`git checkout -`;
+      throw e;
+    }
   });
 
 cli.help();
