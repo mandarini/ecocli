@@ -55,7 +55,7 @@ export async function $(literals: TemplateStringsArray, ...values: any[]) {
 
 export async function setupEnvironment(): Promise<EnvironmentData> {
   const root = dirnameFrom(import.meta.url);
-  const workspace = path.resolve(root, 'workspace');
+  const workspace = path.resolve(process.cwd(), 'workspace');
   cwd = process.cwd();
   env = {
     ...process.env,
@@ -154,7 +154,9 @@ function toCommand(
         const scriptOrBin = task.trim().split(/\s+/)[0];
         if (scripts?.[scriptOrBin] != null) {
           const runTaskWithAgent = getCommand(agent, 'run', [task]);
-          await $`${runTaskWithAgent}`;
+          console.log('KATERINA task', task);
+          console.log('KATERINA runTaskWithAgent', runTaskWithAgent);
+          await $`${runTaskWithAgent.replaceAll('"', '')}`;
         } else {
           await $`${task}`;
         }
@@ -260,6 +262,8 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
   }
 
   await $`${pm} nx migrate --run-migrations --if-exists --no-interactive`;
+
+  console.log('PACKAGE SCRIPTS', pkg.scripts);
 
   await beforeBuildCommand?.(pkg.scripts);
   await buildCommand?.(pkg.scripts);
