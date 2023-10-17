@@ -82,64 +82,64 @@ function initWorkspace(workspace: string) {
   }
 }
 
-export async function setupRepo(options: RepoOptions) {
-  if (options.branch == null) {
-    options.branch = 'main';
-  }
-  if (options.shallow == null) {
-    options.shallow = true;
-  }
+// export async function setupRepo(options: RepoOptions) {
+//   if (options.branch == null) {
+//     options.branch = 'main';
+//   }
+//   if (options.shallow == null) {
+//     options.shallow = true;
+//   }
 
-  const { commit, branch, tag, dir, shallow } = options;
-  let { repo } = options;
-  if (!dir) {
-    throw new Error('setupRepo must be called with options.dir');
-  }
-  if (!repo.includes(':')) {
-    repo = `https://github.com/${repo}.git`;
-  }
+//   const { commit, branch, tag, dir, shallow } = options;
+//   let { repo } = options;
+//   if (!dir) {
+//     throw new Error('setupRepo must be called with options.dir');
+//   }
+//   if (!repo.includes(':')) {
+//     repo = `https://github.com/${repo}.git`;
+//   }
 
-  let needClone = true;
-  if (fs.existsSync(dir)) {
-    const _cwd = cwd;
-    cd(dir);
-    let currentClonedRepo: string | undefined;
-    try {
-      currentClonedRepo = await $`git ls-remote --get-url`;
-    } catch {
-      // when not a git repo
-    }
-    cd(_cwd);
+//   let needClone = true;
+//   if (fs.existsSync(dir)) {
+//     const _cwd = cwd;
+//     cd(dir);
+//     let currentClonedRepo: string | undefined;
+//     try {
+//       currentClonedRepo = await $`git ls-remote --get-url`;
+//     } catch {
+//       // when not a git repo
+//     }
+//     cd(_cwd);
 
-    if (repo === currentClonedRepo) {
-      needClone = false;
-    } else {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
-  }
+//     if (repo === currentClonedRepo) {
+//       needClone = false;
+//     } else {
+//       fs.rmSync(dir, { recursive: true, force: true });
+//     }
+//   }
 
-  if (needClone) {
-    await $`git -c advice.detachedHead=false clone ${
-      shallow ? '--depth=1 --no-tags' : ''
-    } --branch ${tag || branch} ${repo} ${dir}`;
-  }
-  cd(dir);
-  await $`git clean -fdxq`;
-  await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
-    tag ? `tag ${tag}` : `${commit || branch}`
-  }`;
-  if (shallow) {
-    await $`git -c advice.detachedHead=false checkout ${
-      tag ? `tags/${tag}` : `${commit || branch}`
-    }`;
-  } else {
-    await $`git checkout ${branch}`;
-    await $`git merge FETCH_HEAD`;
-    if (tag || commit) {
-      await $`git reset --hard ${tag || commit}`;
-    }
-  }
-}
+//   if (needClone) {
+//     await $`git -c advice.detachedHead=false clone ${
+//       shallow ? '--depth=1 --no-tags' : ''
+//     } --branch ${tag || branch} ${repo} ${dir}`;
+//   }
+//   cd(dir);
+//   await $`git clean -fdxq`;
+//   await $`git fetch ${shallow ? '--depth=1 --no-tags' : '--tags'} origin ${
+//     tag ? `tag ${tag}` : `${commit || branch}`
+//   }`;
+//   if (shallow) {
+//     await $`git -c advice.detachedHead=false checkout ${
+//       tag ? `tags/${tag}` : `${commit || branch}`
+//     }`;
+//   } else {
+//     await $`git checkout ${branch}`;
+//     await $`git merge FETCH_HEAD`;
+//     if (tag || commit) {
+//       await $`git reset --hard ${tag || commit}`;
+//     }
+//   }
+// }
 
 function toCommand(
   task: Task | Task[] | void,
@@ -179,34 +179,25 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
     options.skipGit = false;
   }
   if (options.branch == null) {
-    options.branch = 'main';
+    options.branch = `tmp-ecosystem-ci-${Math.random().toString(36).slice(2)}`;
   }
 
   const {
     build,
     test,
     e2e,
-    repo,
     branch,
-    tag,
-    commit,
-    skipGit,
     verify,
     beforeInstall,
     beforeBuild,
     beforeTest,
   } = options;
 
-  const dir = path.resolve(
-    options.workspace,
-    options.dir || repo.substring(repo.lastIndexOf('/') + 1)
-  );
+  // Test current project
+  const dir = process.cwd();
 
-  if (!skipGit) {
-    await setupRepo({ repo, dir, branch, tag, commit });
-  } else {
-    cd(dir);
-  }
+  cd(dir);
+  await $`git checkout -b ${branch}`;
   if (options.agent == null) {
     const detectedAgent = await detect({ cwd: dir, autoInstall: false });
     if (detectedAgent == null) {
@@ -274,6 +265,9 @@ export async function runInRepo(options: RunOptions & RepoOptions) {
 
   await e2eCommand?.(pkg.scripts);
 
+  await $`git add -A`;
+  await $`git commit -m "ecosystem tests ran successfully"`;
+  await $`git checkout -`;
   return { dir };
 }
 
