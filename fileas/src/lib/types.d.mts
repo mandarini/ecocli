@@ -1,6 +1,7 @@
 import type { Agent } from '@antfu/ni';
 export interface EnvironmentData {
   root: string;
+  vitePath?: string;
   workspace: string;
   cwd: string;
   env: ProcessEnv;
@@ -8,6 +9,8 @@ export interface EnvironmentData {
 
 export interface RunOptions {
   workspace: string;
+  vitePath?: string;
+  viteMajor?: number;
   root: string;
   verify?: boolean;
   skipGit?: boolean;
@@ -21,7 +24,7 @@ export interface RunOptions {
   beforeTest?: Task | Task[];
 }
 
-type Task = string | (() => Promise<any>);
+type Task = string | { script: string; args?: string[] } | (() => Promise<any>);
 
 export interface CommandOptions {
   suites?: string[];
@@ -36,6 +39,7 @@ export interface CommandOptions {
   release?: string;
   verify?: boolean;
   skipGit?: boolean;
+  ecosystem: 'nx' | 'vite';
 }
 
 export interface RepoOptions {
@@ -43,6 +47,7 @@ export interface RepoOptions {
   test?: Task | Task[];
   e2e?: Task | Task[];
   branch?: string;
+  overrides?: Overrides;
 }
 
 export interface Overrides {
@@ -51,4 +56,14 @@ export interface Overrides {
 
 export interface ProcessEnv {
   [key: string]: string | undefined;
+}
+
+export interface PackageInfo {
+  name: string;
+  version: string;
+  path: string;
+  private: boolean;
+  dependencies: Record<string, DependencyInfo>;
+  devDependencies: Record<string, DependencyInfo>;
+  optionalDependencies: Record<string, DependencyInfo>;
 }

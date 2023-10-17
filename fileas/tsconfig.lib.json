@@ -5,6 +5,6 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/index.mts", "src/lib/utils.mts", "src/lib/types.d.mts"],
+  "include": ["src/**/*.ts", "src/index.mts", "src/lib/utils-nx.mts", "src/lib/types.d.mts", "src/lib/utils-vite.mts"],
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

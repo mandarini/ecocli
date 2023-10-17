@@ -1,18 +1,30 @@
-import * as fs from 'fs'; // ES Modules
+import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { cac } from 'cac';
+import { setupEnvironment, $ } from './lib/common-utils.mjs';
 import { CommandOptions, RepoOptions, RunOptions } from './lib/types.mjs';
-import { runInRepo, setupEnvironment, $ } from './lib/utils.mjs';
+import {
+  buildVite,
+  parseMajorVersion,
+  parseViteMajor,
+  runInRepo as viteRunInRepo,
+  setupViteRepo,
+} from './lib/utils-vite.mjs';
+import { runInRepo as nxRunInRepo } from './lib/utils-nx.mjs';
 
 const cli = cac();
 cli
-  .command('[...suites]', 'run selected suites')
-  .option(
-    '--verify',
-    'verify checkouts by running tests before using next nx',
-    { default: false }
-  )
+  .command('[...suites]', 'build vite and run selected suites')
+  .option('--verify', 'verify checkouts by running tests', { default: false })
+  .option('--ecosystem <ecosystem>', 'which ecosystem to run tests for', {
+    default: undefined,
+  })
+  .option('--repo <repo>', 'vite repository to use', { default: 'vitejs/vite' })
+  .option('--branch <branch>', 'vite branch to use', { default: 'main' })
+  .option('--tag <tag>', 'vite tag to use')
+  .option('--commit <commit>', 'vite commit sha to use')
+  .option('--release <version>', 'vite release to use from npm registry')
   .option('--build <build>', 'build script', {
     default: 'build',
     type: [String],
@@ -23,8 +35,11 @@ cli
     default: 'test-ecosystem.json',
     type: [String],
   })
-  .action(async (suites, options: CommandOptions) => {
-    const { root, workspace } = await setupEnvironment();
+  .action(async (_suites, options: CommandOptions) => {
+    const { root, vitePath, workspace } = await setupEnvironment();
+    if (!vitePath && options.ecosystem === 'vite') {
+      throw new Error('Could not find vite path.');
+    }
     let suiteOptions;
     if (options.optionsFile) {
       const getSuitePath = path.join(process.cwd(), options.optionsFile);
@@ -34,9 +49,20 @@ cli
         ) as RepoOptions;
       }
     }
-
+    let viteMajor;
+    if (options.ecosystem === 'vite') {
+      if (!options.release) {
+        await setupViteRepo();
+        await buildVite({ verify: options.verify });
+        viteMajor = parseViteMajor(vitePath as string);
+      } else {
+        viteMajor = parseMajorVersion(options.release);
+      }
+    }
     const runOptions: RunOptions = {
       root,
+      vitePath,
+      viteMajor,
       workspace,
       release: options.release,
       verify: options.verify,
@@ -46,7 +72,7 @@ cli
       e2e: options.e2e,
     };
     try {
-      await run(suiteOptions ?? {}, runOptions);
+      await run(suiteOptions ?? {}, runOptions, options.ecosystem);
     } catch (e) {
       await $`git add -A`;
       await $`git commit -m ecosystem-run-failed`;
@@ -58,12 +84,22 @@ cli
 cli.help();
 cli.parse();
 
-async function run(suiteOptions: RepoOptions, options: RunOptions) {
+async function run(
+  suiteOptions: RepoOptions,
+  options: RunOptions,
+  ecosystem: 'vite' | 'nx'
+) {
   const finalOptions = {
     ...suiteOptions,
     ...options,
     workspace: path.resolve(options.workspace),
   };
   console.log('Run options: ', finalOptions);
-  await runInRepo(finalOptions);
+  if (ecosystem === 'vite') {
+    await viteRunInRepo(finalOptions);
+  } else if (ecosystem === 'nx') {
+    await nxRunInRepo(finalOptions);
+  } else {
+    throw new Error('Unknown ecosystem: ' + ecosystem);
+  }
 }

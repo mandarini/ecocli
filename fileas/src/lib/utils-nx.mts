@@ -1,86 +1,9 @@
 import path from 'path';
 import * as fs from 'fs'; // ES Modules
-import { fileURLToPath } from 'url';
-import { execaCommand } from 'execa';
-import {
-  EnvironmentData,
-  Overrides,
-  ProcessEnv,
-  RepoOptions,
-  RunOptions,
-  Task,
-} from './types.mjs';
+import { Overrides, RepoOptions, RunOptions, Task } from './types.mjs';
 import { detect, AGENTS, Agent, getCommand } from '@antfu/ni';
-import actionsCore from '@actions/core';
 import * as semver from 'semver';
-
-const isGitHubActions = !!process.env['GITHUB_ACTIONS'];
-
-let cwd: string;
-let env: ProcessEnv;
-
-function cd(dir: string) {
-  cwd = path.resolve(cwd, dir);
-}
-
-export async function $(literals: TemplateStringsArray, ...values: any[]) {
-  const cmd = literals.reduce(
-    (result, current, i) =>
-      result + current + (values?.[i] != null ? `${values[i]}` : ''),
-    ''
-  );
-
-  if (isGitHubActions) {
-    actionsCore.startGroup(`${cwd} $> ${cmd}`);
-  } else {
-    console.log(`${cwd} $> ${cmd}`);
-  }
-
-  const proc = execaCommand(cmd, {
-    env: { ...env, NODE_ENV: 'development' },
-    stdio: 'pipe',
-    cwd,
-  });
-
-  proc.stdin && process.stdin.pipe(proc.stdin);
-  proc.stdout && proc.stdout.pipe(process.stdout);
-  proc.stderr && proc.stderr.pipe(process.stderr);
-  const result = await proc;
-  if (isGitHubActions) {
-    actionsCore.endGroup();
-  }
-
-  return result.stdout;
-}
-
-export async function setupEnvironment(): Promise<EnvironmentData> {
-  const root = dirnameFrom(import.meta.url);
-  const workspace = path.resolve(process.cwd(), 'workspace');
-  cwd = process.cwd();
-  env = {
-    ...process.env,
-    CI: 'true',
-    YARN_ENABLE_IMMUTABLE_INSTALLS: 'false', // to avoid errors with mutated lockfile due to overrides
-    NODE_OPTIONS: '--max-old-space-size=6144', // GITHUB CI has 7GB max, stay below
-    ECOSYSTEM_CI: 'true', // flag for tests, can be used to conditionally skip irrelevant tests.
-  };
-  initWorkspace(workspace);
-  return { root, workspace, cwd, env };
-}
-
-function initWorkspace(workspace: string) {
-  if (!fs.existsSync(workspace)) {
-    fs.mkdirSync(workspace, { recursive: true });
-  }
-  const eslintrc = path.join(workspace, '.eslintrc.json');
-  if (!fs.existsSync(eslintrc)) {
-    fs.writeFileSync(eslintrc, '{"root":true}\n', 'utf-8');
-  }
-  const editorconfig = path.join(workspace, '.editorconfig');
-  if (!fs.existsSync(editorconfig)) {
-    fs.writeFileSync(editorconfig, 'root = true\n', 'utf-8');
-  }
-}
+import { cd, $ } from './common-utils.mjs';
 
 function toCommand(
   task: Task | Task[] | void,
@@ -95,8 +18,7 @@ function toCommand(
         const scriptOrBin = task.trim().split(/\s+/)[0];
         if (scripts?.[scriptOrBin] != null) {
           const runTaskWithAgent = getCommand(agent, 'run', [task]);
-          console.log('KATERINA task', task);
-          console.log('KATERINA runTaskWithAgent', runTaskWithAgent);
+          // For some reason, this is needed: to remove the quotes around the command
           await $`${runTaskWithAgent.replaceAll('"', '')}`;
         } else {
           await $`${task}`;
@@ -338,8 +260,4 @@ export async function getInstallCommand(dir: string): Promise<string> {
   } else {
     throw new Error(`unsupported package manager detected: ${pm}`);
   }
-}
-
-export function dirnameFrom(url: string) {
-  return path.dirname(fileURLToPath(url));
 }
