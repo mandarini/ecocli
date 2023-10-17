@@ -13,24 +13,34 @@ cli
     'verify checkouts by running tests before using next nx',
     { default: false }
   )
+  .option('--build', 'build script', { default: false })
+  .option('--test', 'test script', { default: false })
+  .option('--e2e', 'e2e script', { default: false })
   .action(async (suites, options: CommandOptions) => {
     const { root, workspace } = await setupEnvironment();
     const currentWd = process.cwd();
     console.log('currentWd', currentWd);
     const getSuitePath = path.join(process.cwd(), 'test-nx.json');
-    const suiteOptions = JSON.parse(
-      fs.readFileSync(getSuitePath, 'utf-8')
-    ) as RepoOptions;
-    console.log('suiteOptions', suiteOptions);
+    let suiteOptions;
+    if (fs.existsSync(getSuitePath)) {
+      suiteOptions = JSON.parse(
+        fs.readFileSync(getSuitePath, 'utf-8')
+      ) as RepoOptions;
+      console.log('suiteOptions', suiteOptions);
+    }
+
     const runOptions: RunOptions = {
       root,
       workspace,
       release: options.release,
       verify: options.verify,
       skipGit: false,
+      build: options.build,
+      test: options.test,
+      e2e: options.e2e,
     };
     console.log('runOptions', runOptions);
-    await run(suiteOptions, runOptions);
+    await run(suiteOptions ?? {}, runOptions);
   });
 
 // cli

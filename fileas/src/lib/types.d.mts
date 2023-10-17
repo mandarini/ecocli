@@ -28,6 +28,9 @@ export interface CommandOptions {
   repo?: string;
   branch?: string;
   tag?: string;
+  build?: Task | Task[];
+  test?: Task | Task[];
+  e2e?: Task | Task[];
   commit?: string;
   release?: string;
   verify?: boolean;
@@ -35,13 +38,10 @@ export interface CommandOptions {
 }
 
 export interface RepoOptions {
-  repo: string;
-  dir?: string;
+  build?: Task | Task[];
+  test?: Task | Task[];
+  e2e?: Task | Task[];
   branch?: string;
-  tag?: string;
-  commit?: string;
-  shallow?: boolean;
-  overrides?: Overrides;
 }
 
 export interface Overrides {
